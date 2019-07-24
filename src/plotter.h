@@ -93,6 +93,7 @@ class Plotter : public QWidget
 {
     Q_OBJECT
 public:
+    void refreshPixmap(QPaintDevice &qPaintDevice);
     enum TscaleSetting {ReceiverScale,DataScale,ManualScale};
     TscaleSetting scaleSetting;
 
@@ -372,7 +373,8 @@ public:
     QAction *vCursorAction;
     QAction *exportAsciiAction;
     QAction *exportImageAction;
-
+    QAction *exportSVGImageAction;
+    QAction *exportPDFImageAction;
     QLabel *IDLabel;
 
     int IDNumber() {return FIDNumber;}
@@ -399,6 +401,8 @@ public slots:
     void setBitLineOption();
     void exportAscii();
     void exportImage();
+    void exportSVGImage();
+    void exportPDFImage();
     void update();
     void setVCursor(bool b);
     void xFullRangePlot();

@@ -1,4 +1,6 @@
 #include <QtWidgets>
+#include <QPrinter>
+#include <QtSvg/QSvgGenerator>
 #include <cmath>
 
 #include "plotter.h"
@@ -590,6 +592,12 @@ void FIDPlotter::createActions()
     exportImageAction = new QAction(QIcon(":/images/export2.png"),tr("export image"),this);
     connect(exportImageAction,SIGNAL(triggered(bool)),this,SLOT(exportImage()));
 
+    exportSVGImageAction = new QAction(QIcon(":/images/export2.png"), tr("export SVG Image"),this);
+    connect(exportSVGImageAction, SIGNAL(triggered(bool)), this, SLOT(exportSVGImage()));
+
+    exportPDFImageAction = new QAction(QIcon(":/images/export2.png"), tr("export PDF Image"),this);
+    connect(exportPDFImageAction, SIGNAL(triggered(bool)), this, SLOT(exportPDFImage()));
+
     rubberBandAction = new QAction(QIcon(":/images/rubberBand.png"),tr("rubber band"),this);
     rubberBandAction->setCheckable(true);
     connect(rubberBandAction,SIGNAL(triggered(bool)),this,SLOT(setRubberBand(bool)));
@@ -689,6 +697,8 @@ void FIDPlotter::createToolBar()
     toolBar2->addSeparator();
     toolBar2->addAction(exportAsciiAction);
     toolBar2->addAction(exportImageAction);
+    toolBar2->addAction(exportSVGImageAction);
+    toolBar2->addAction(exportPDFImageAction);
     toolBar2->addSeparator();
 
 }
@@ -853,6 +863,38 @@ void FIDPlotter::exportImage()
     QFileInfo fInfo(fileName);
     setPath(fInfo.absolutePath());
 
+}
+
+void FIDPlotter::exportSVGImage()
+{
+    if(!isFID2DSetted()) return;
+    if(!plotter->fidSetted) return;
+    QString fileName= QFileDialog::getSaveFileName(this, "Export SVG Image", path(), "SVG(*.svg)");
+
+    if(fileName.isEmpty()) return;
+
+    QFile file(fileName);
+    QSvgGenerator printer;
+    printer.setFileName(file.fileName());
+    plotter->refreshPixmap(printer);
+}
+
+void FIDPlotter::exportPDFImage()
+{
+    if(!isFID2DSetted()) return;
+    if(!plotter->fidSetted) return;
+    QString fileName= QFileDialog::getSaveFileName(this, "Export PDF Image", path(), "PDF(*.pdf)");
+
+    if(fileName.isEmpty()) return;
+
+    QFile file(fileName);
+    file.open(QIODevice::WriteOnly);
+
+    QPrinter printer(QPrinter::HighResolution);
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setOutputFileName(file.fileName());
+    printer.setResolution(72);
+    plotter->refreshPixmap(printer);
 }
 
 //------------------------------------------------------------------------------
@@ -1436,6 +1478,77 @@ void Plotter::refreshPixmap()
     update();
 
   //  qDebug() << QString(Q_FUNC_INFO);
+}
+
+void Plotter::refreshPixmap(QPaintDevice &qPaintDevice)
+{
+    if(!fidSetted) {return;}
+
+    if(fid->isEmpty()) { return;}
+
+    pixmap=QPixmap(size());
+
+    QPainter painter(&qPaintDevice);
+    painter.initFrom(this);
+
+    drawFrame(&painter);
+    drawXTicks(&painter);
+    drawFID(&painter);
+
+    if(bitLineIsShown()) drawBitLines(&painter);
+
+    if(vCursorIsShown())
+    {
+        drawVCursor(&painter,vCursorXPosition());
+        if(vCursorXPosition()>-1 && vCursorXPosition()<fid->al())
+        {
+            emit cursorInfo(QStringList()
+                            << QString::number(vCursorXPosition())
+                            << QString::number(fid->xValue(vCursorXPosition())) + " "
+                                        +fid->xAxisUnitString()
+                            << QString::number(fid->real->sig.at(vCursorXPosition()))
+                            << QString::number(fid->imag->sig.at(vCursorXPosition()))
+                            << QString::number(fid->abs->sig.at(vCursorXPosition()))
+                            << QString::number(180/3.141592*
+                                               atan2(fid->imag->sig.at(vCursorXPosition()),
+                                                     fid->real->sig.at(vCursorXPosition())),'f',2)
+
+                            );
+
+            emit deltaInfo("Prev. x: \n"+ QString::number(previousVCursorXPosition()) + "\n"
+                           + "Delta: \n" + QString::number(fid->xValue(vCursorXPosition())
+                                                           -fid->xValue(previousVCursorXPosition()))
+                                         + " " + fid->xAxisUnitString() + "\n"
+                           + "In-phase area: \n" + QString::number(
+                               fid->real->sum(vCursorXPosition(),previousVCursorXPosition())) + "\n"
+                           + "In-phase sigma: \n" + QString::number(
+                               fid->real->standardDeviation(vCursorXPosition(),previousVCursorXPosition())) + "\n"
+                           + "Abs sigma: \n" + QString::number(
+                               fid->abs->standardDeviation(vCursorXPosition(),previousVCursorXPosition()))
+
+                           );
+
+        }
+      //  emit yRealSignal(QString::number(fid->real->sig.at(vCursorXValue)));
+        //  TODO: check the index range!
+    }
+    emit plotRangeInfo(QStringList()
+                       << QString::number(xini)
+                       << QString::number(fid->xValue(xini))
+                       << fid->xAxisUnitString()
+                       << QString::number(xfin)
+                       << QString::number(fid->xValue(xfin))
+                       << fid->xAxisUnitString()
+                       );
+
+    drawYZeroLine(&painter);
+
+
+    emit scaleSignal(QString::number(scale()));
+    emit xIniSignal(xini);
+    emit xFinSignal(xfin);
+
+    update();
 }
 //------------------------------------------------------------------------------
 void Plotter::drawFrame(QPainter *painter)
