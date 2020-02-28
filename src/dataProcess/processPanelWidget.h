@@ -33,6 +33,7 @@
 #include "fidMathWidget.h"
 #include "peakPickWidget.h"
 #include "interpolateWidget.h"
+#include "linearitywidget.h"
 
 class TFIDPlotters;
 class TProcessFileWidget;
@@ -74,6 +75,7 @@ public:
 
 
     TCreateFIDWidget *createFIDWidget;
+    LinearityWidget *linearityWidget;
 
     QString settingDirPath() {return FSettingDirPath;}
     void setSettingDirPath(QString qs);

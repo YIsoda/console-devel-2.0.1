@@ -391,6 +391,7 @@ void TProcessPanelWidget::createWidgets()
                                     << "Math"
                                     << "Peak"
                                     << "Interpolate(tmp)"
+                                    << "Linearity"
                                     );
 #else
       operationListWidget->addItems(QStringList()
@@ -408,6 +409,7 @@ void TProcessPanelWidget::createWidgets()
                                     << "Peak"
                                     << "Nutation(tmp)"
                                     << "Interpolate(tmp)"
+                                    << "Linearity"
                                     );
 #endif
 
@@ -470,6 +472,9 @@ void TProcessPanelWidget::createWidgets()
 
     interpolateWidget = new KInterpolateWidget;
       interpolateWidget->setAncestor(this);
+
+    linearityWidget = new LinearityWidget();
+    linearityWidget->setAncestor(this);
 }
 
 void TProcessPanelWidget::createPanel()
@@ -494,6 +499,7 @@ void TProcessPanelWidget::createPanel()
     stackedWidget->addWidget(FIDMathWidget);
     stackedWidget->addWidget(peakPickWidget);
     stackedWidget->addWidget(interpolateWidget);
+    stackedWidget->addWidget(linearityWidget);
 
     QHBoxLayout *layout1 = new QHBoxLayout;
     //layout1->addWidget(new QLabel(tr("Operation")));
