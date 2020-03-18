@@ -101,6 +101,10 @@ RESOURCES += \
 linux: LIBS += -L/usr/local/lib -llapack -llapacke -lblas -lcblas -lgfortran -lm
 
 mac: LIBS += -framework Accelerate
-
-win32: LIBS += -L"c:\lib" -llapack -llapacke -lblas -lcblas -lm
-win32: INCLUDEPATH += c:/lib
+BUILD_UBUNTU_CI = $$(BUILD_UBUNTU_CI)
+!isEmpty(BUILD_UBUNTU_CI) {
+    win32: LIBS += -L"lib" -llapack -llapacke -lblas -lcblas -lm
+} else {
+    win32: LIBS += -L"c:\lib" -llapack -llapacke -lblas -lcblas -lm
+    win32: INCLUDEPATH += c:/lib
+}
