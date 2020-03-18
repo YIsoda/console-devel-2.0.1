@@ -25,7 +25,7 @@ jobs:
         cp artifacts/*.dll ${GITHUB_WORKSPACE}/lib
     - name: Build
       run: |
-        docker run --rm -v ${GITHUB_WORKSPACE}:/var/build darkmattercoder/qt-build:latest build /var/build/src/nmrProcess/nmrProcess.pro
+        sudo docker run --rm -v ${GITHUB_WORKSPACE}:/var/build darkmattercoder/qt-build:latest build /var/build/src/nmrProcess/nmrProcess.pro
         
     - name: Show build result
       run: ls ${GITHUB_WORKSPACE}/build
