@@ -18,19 +18,19 @@ jobs:
         unzip lapack-build-release.zip
         ls
         ls ${GITHUB_WORKSPACE}
-        cp artifacts/*.h ${GITHUB_WORKSPACE}/console-devel-2.0.1/src/dataProcess
+        cp artifacts/*.h ${GITHUB_WORKSPACE}/src/dataProcess
     - name: Set DLLs
       run: |
         mkdir lib
-        cp artifacts/*.dll ${GITHUB_WORKSPACE}/console-devel-2.0.1/lib
+        cp artifacts/*.dll ${GITHUB_WORKSPACE}/lib
     - name: Build
       run: |
-        docker run --rm -v ${GITHUB_WORKSPACE}/console-devel-2.0.1:/var/build darkmattercoder/qt-build:latest build /var/build/src/nmrProcess/nmrProcess.pro
+        docker run --rm -v ${GITHUB_WORKSPACE}:/var/build darkmattercoder/qt-build:latest build /var/build/src/nmrProcess/nmrProcess.pro
         
     - name: Show build result
-      run: ls ${GITHUB_WORKSPACE}/console-devel-2.0.1/build
+      run: ls ${GITHUB_WORKSPACE}/build
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
         name: build_results
-        path: ${GITHUB_WORKSPACE}/console-devel-2.0.1/build
+        path: ${GITHUB_WORKSPACE}/build
