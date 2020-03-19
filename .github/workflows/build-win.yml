@@ -1,0 +1,22 @@
+name: Build and release
+
+on: [push, pull_request]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    runs-on: [windows-latest]
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    - uses: actions/checkout@v2 
+    - name: Download Qt installer
+      run: Invoke-WebRequest -Uri http://download.qt.io/official_releases/qt/5.14/5.14.1/qt-opensource-windows-x86-5.14.1.exe
+    - name: Install Qt
+      run: ./qt-opensource-windows-x86-5.14.1.exe --verbose
+#     - name: Show build result
+#       run: ls ${GITHUB_WORKSPACE}/build
+#     - name: Upload artifact
+#       uses: actions/upload-artifact@v1.0.0
+#       with:
