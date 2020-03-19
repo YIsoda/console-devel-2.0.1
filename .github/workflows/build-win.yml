@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2 
     - name: Download Qt installer
-      run: Invoke-WebRequest -Uri http://download.qt.io/official_releases/qt/5.14/5.14.1/qt-opensource-windows-x86-5.14.1.exe
+      run: Invoke-WebRequest -Verbose -Uri http://download.qt.io/official_releases/qt/5.14/5.14.1/qt-opensource-windows-x86-5.14.1.exe
     - name: Install Qt
       run: ./qt-opensource-windows-x86-5.14.1.exe --verbose
 #     - name: Show build result
